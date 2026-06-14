@@ -8,8 +8,17 @@ const axios = require("axios");
 
 router.get("/characters", async (req, res) => {
   try {
+    let limit = 100;
+    let filters = "";
+
+    if (req.query.name) {
+      filters += `&name=${req.query.name}`;
+    }
+    if (req.query.page) {
+      filters += `&skip=${(req.query.page - 1) * limit}`;
+    }
     const response = await axios.get(
-      `${process.env.API_URL}/characters?apiKey=${process.env.API_KEY}`,
+      `${process.env.API_URL}/characters?apiKey=${process.env.API_KEY}${filters}`,
     );
     res.status(200).json(response.data);
   } catch (error) {
@@ -22,11 +31,9 @@ router.get("/characters", async (req, res) => {
 router.get("/character/:characterId", async (req, res) => {
   try {
     const characterId = req.params.characterId;
-    console.log("id from front => ", characterId);
     const response = await axios.get(
       `${process.env.API_URL}/character/${characterId}?apiKey=${process.env.API_KEY}`,
     );
-    console.log("new =>", response.data);
     res.status(200).json(response.data);
   } catch (error) {
     res.status(500).json(error.message);

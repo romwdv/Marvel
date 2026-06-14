@@ -7,8 +7,18 @@ const axios = require("axios");
 
 router.get("/comics", async (req, res) => {
   try {
+    let limit = 100;
+    let filters = "";
+
+    if (req.query.title) {
+      filters += `&title=${req.query.title}`;
+    }
+    if (req.query.page) {
+      filters += `&skip=${(req.query.page - 1) * limit}`;
+    }
+    console.log(req.query.title);
     const response = await axios.get(
-      `${process.env.API_URL}/comics?apiKey=${process.env.API_KEY}`,
+      `${process.env.API_URL}/comics?apiKey=${process.env.API_KEY}${filters}`,
     );
     const cleanDescription = response.data.results.map((item) => ({
       ...item,
@@ -43,6 +53,7 @@ router.get("/comic/:comicId", async (req, res) => {
     const response = await axios.get(
       `${process.env.API_URL}/comic/${comicId}?apiKey=${process.env.API_KEY}`,
     );
+    console.log(response.data);
     res.status(200).json(response.data);
   } catch (error) {
     res.status(500).json(error.message);

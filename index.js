@@ -10,10 +10,12 @@ app.use(express.json());
 
 const characters = require("./routes/characters");
 const comics = require("./routes/comics");
+const user = require("./routes/user");
 
 app.use(cors());
 app.use(characters);
 app.use(comics);
+app.use(user);
 
 app.get("/", (req, res) => {
   try {

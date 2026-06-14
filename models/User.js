@@ -21,7 +21,7 @@ const favoriteSchema = new mongoose.Schema(
       type: String,
     },
   },
-  { _id: false }, // pas d'_id généré pour chaque sous-document
+  { _id: false },
 );
 
 const userSchema = new mongoose.Schema({
@@ -33,7 +33,10 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    // bcrypt hash uniquement — jamais le mot de passe en clair
+  },
+  salt: {
+    type: String,
+    required: true,
   },
   token: {
     type: String,
