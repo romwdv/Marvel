@@ -3,6 +3,9 @@ const router = express.Router();
 const he = require("he");
 const axios = require("axios");
 
+const sanitizeDescription = (desc) =>
+  desc ? he.decode(desc).replace(/<[^>]*>/g, "") : "";
+
 // 1 - Route for all comics
 
 router.get("/comics", async (req, res) => {
@@ -16,17 +19,15 @@ router.get("/comics", async (req, res) => {
     if (req.query.page) {
       filters += `&skip=${(req.query.page - 1) * limit}`;
     }
-    console.log(req.query.title);
     const response = await axios.get(
       `${process.env.API_URL}/comics?apiKey=${process.env.API_KEY}${filters}`,
     );
-    const cleanDescription = response.data.results.map((item) => ({
+    const cleanResults = response.data.results.map((item) => ({
       ...item,
-      description: item.description ? he.decode(item.description) : "",
+      description: sanitizeDescription(item.description),
     }));
-    res.status(200).json({ ...response.data, results: cleanDescription });
+    res.status(200).json({ ...response.data, results: cleanResults });
   } catch (error) {
-    console.log(error.message);
     res.status(500).json(error.message);
   }
 });
@@ -39,7 +40,12 @@ router.get("/comics/:characterId", async (req, res) => {
     const response = await axios.get(
       `${process.env.API_URL}/comics/${characterId}?apiKey=${process.env.API_KEY}`,
     );
-    res.status(200).json(response.data);
+    const results = response.data.results ?? [];
+    const cleanResults = results.map((item) => ({
+      ...item,
+      description: sanitizeDescription(item.description),
+    }));
+    res.status(200).json({ ...response.data, results: cleanResults });
   } catch (error) {
     res.status(500).json(error.message);
   }
@@ -53,8 +59,10 @@ router.get("/comic/:comicId", async (req, res) => {
     const response = await axios.get(
       `${process.env.API_URL}/comic/${comicId}?apiKey=${process.env.API_KEY}`,
     );
-    console.log(response.data);
-    res.status(200).json(response.data);
+    res.status(200).json({
+      ...response.data,
+      description: sanitizeDescription(response.data.description),
+    });
   } catch (error) {
     res.status(500).json(error.message);
   }
