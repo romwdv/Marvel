@@ -28,7 +28,7 @@ router.post("/signup", async (req, res) => {
     await newUser.save();
     res
       .status(201)
-      .json({ token, email: newUser.email, favorites: user.favorites });
+      .json({ token, email: newUser.email, favorites: newUser.favorites });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
